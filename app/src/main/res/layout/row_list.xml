@@ -1,0 +1,41 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="ID:"
+        android:textSize="@dimen/txtTitleSize" />
+
+    <TextView
+        android:id="@+id/txtRowID"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/txtNormalSize" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Name:"
+        android:textSize="@dimen/txtTitleSize" />
+
+    <TextView
+        android:id="@+id/txtRowName"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/txtNormalSize" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Team:"
+        android:textSize="@dimen/txtTitleSize" />
+
+    <TextView
+        android:id="@+id/txtRowTeam"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/txtNormalSize" />
+</LinearLayout>

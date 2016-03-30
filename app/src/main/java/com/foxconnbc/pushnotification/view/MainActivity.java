@@ -1,15 +1,17 @@
-package com.foxconnbc.pushnotification;
+package com.foxconnbc.pushnotification.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
+import com.foxconnbc.pushnotification.R;
 import com.onesignal.OneSignal;
 
 import org.json.JSONObject;
@@ -59,15 +61,22 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void dataListActivity() {
+        Intent intent = new Intent(MainActivity.this, DataListingActivity.class);
+        startActivity(intent);
+    }
+
     private class ExampleNotificationOpenedHandler implements OneSignal.NotificationOpenedHandler {
         @Override
         public void notificationOpened(String message, JSONObject additionalData, boolean isActive) {
             try {
                 if (additionalData != null) {
-                    if (additionalData.has("actionSelected"))
+                    if (additionalData.has("actionSelected")) {
                         Log.d("OneSignalExample", "OneSignal notification button with id " + additionalData.getString("actionSelected") + " pressed");
+                    }
 
                     Log.d("OneSignalExample", "Full additionalData:\n" + additionalData.toString());
+                    dataListActivity();
                 }
             } catch (Throwable t) {
                 t.printStackTrace();
