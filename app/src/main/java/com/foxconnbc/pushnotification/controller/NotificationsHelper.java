@@ -68,11 +68,13 @@ public class NotificationsHelper {
                 + " = " + id, null);
     }
 
+
+
     public ArrayList<Notification> getAllNotifications() {
         ArrayList<Notification> arrLNotifications=new ArrayList<Notification>();
         database=getNotificationCon();
         Cursor cursor = database.query(DBUtils.C_NOTIFICATIONS,
-                USUARIOS_TABLE_COLUMNS, null, null, null, null, null);
+                USUARIOS_TABLE_COLUMNS, null, null, null, null, DBUtils.C_NOTIFICATION_ID+ " DESC");
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {

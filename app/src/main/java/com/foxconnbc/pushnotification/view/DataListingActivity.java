@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.foxconnbc.pushnotification.R;
@@ -59,6 +60,15 @@ public class DataListingActivity extends AppCompatActivity {
 
         oHelper = new NotificationsHelper(this);
 
+        lstView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view,
+                                           int position, long id) {
+                deleteNotification(position);
+                return true;
+            }
+        });
 
         new HttpPostTask(DataListingActivity.this).execute();
 
@@ -104,6 +114,15 @@ public class DataListingActivity extends AppCompatActivity {
             adapter.add(notification);
         }
         adapter.notifyDataSetChanged();
+    }
+
+    public void deleteNotification(int position) {
+
+        if (adapter.getCount() > 0) {
+            Notification oNotification = adapter.getItem(position);
+            oHelper.deleteNotification(oNotification);
+            adapter.remove(oNotification);
+        }
     }
 
     private class ExampleNotificationOpenedHandler implements OneSignal.NotificationOpenedHandler {
