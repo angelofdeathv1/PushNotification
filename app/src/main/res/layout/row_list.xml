@@ -6,35 +6,17 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="ID:"
+        android:text="Message:"
         android:textSize="@dimen/txtTitleSize" />
 
     <TextView
-        android:id="@+id/txtRowID"
+        android:id="@+id/txtRowMessage"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/txtNormalSize" />
 
     <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Name:"
-        android:textSize="@dimen/txtTitleSize" />
-
-    <TextView
-        android:id="@+id/txtRowName"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/txtNormalSize" />
-
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Team:"
-        android:textSize="@dimen/txtTitleSize" />
-
-    <TextView
-        android:id="@+id/txtRowTeam"
+        android:id="@+id/txtRowDate"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/txtNormalSize" />

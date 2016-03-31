@@ -1,5 +1,6 @@
 package com.foxconnbc.pushnotification.utils;
 
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,7 +17,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by te-arambulaa on 3/30/2016.
+ * Since HttpClient,BasicNameValuePairs, etc...  are deprecated.
+ * I've searched for a good alternative, and couldn't find any. Eventually ended up writing my own solution, so I decided to share to those who needs it.
+ * Main goals: to make it intuitive, short, clean and reasonable.
+ * NOTE methods: .prepare(), preparePost(), withData(map) & withData(string) are build to allow caller to chain in different variations, examples:
+ * HttpRequest req=new HttpRequest("http://host:port/path");
+ * <p/>
+ * Example 1: //prepare Http Post request and send to "http://host:port/path" with data params name=Bubu and age=29, return true - if worked
+ * req.preparePost().withData("name=Bubu&age=29").send();
+ * <p/>
+ * Example 2: //prepare http get request,  send to "http://host:port/path" and read server's response as String
+ * req.prepare().sendAndReadString();
+ * <p/>
+ * Example 3: //prepare Http Post request and send to "http://host:port/path" with name=Bubu and age=29 and read server's response as JSONObject
+ * HashMap<String, String>params=new HashMap<>();
+ * params.put("name", "Groot");
+ * params.put("age", "29");
+ * req.preparePost().withData(params).sendAndReadJSON();
  */
 public class HttpRequest {
     private URL url;
@@ -47,10 +64,15 @@ public class HttpRequest {
      */
     private void prepareAll(boolean isPost) throws IOException {
         con = (HttpURLConnection) url.openConnection();
-        if (isPost) con.setRequestMethod("POST");
-        con.setDoOutput(true);
-        con.setDoInput(true);
-        os = con.getOutputStream();
+        if (isPost) {
+            con.setRequestMethod("POST");
+            con.setDoOutput(true);
+            con.setDoInput(true);
+            os = con.getOutputStream();
+        }else {
+            con.setRequestMethod("GET");
+            con.setDoOutput(false);
+        }
     }
 
     //prepare request in GET method
