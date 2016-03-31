@@ -43,7 +43,7 @@ public class ParserUtils {
             id = jsonObject.getString(C_TAG_ID);
             name = jsonObject.getString(C_TAG_NAME);
             sTeam = jsonObject.getString(C_TAG_TEAM);
-            arrLNotifications.add(new Notification(id, name, sTeam));
+            arrLNotifications.add(new Notification(0, name, sTeam));
         }
 
         return arrLNotifications;

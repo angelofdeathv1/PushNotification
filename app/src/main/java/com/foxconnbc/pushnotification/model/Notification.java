@@ -4,7 +4,7 @@ package com.foxconnbc.pushnotification.model;
  * Created by te-arambulaa on 3/30/2016.
  */
 public class Notification {
-    private String sID;
+    private int nID;
     private String sContent;
     private String sTimeStamp;
 
@@ -12,18 +12,18 @@ public class Notification {
 
     }
 
-    public Notification(String nID, String sName, String sTimeStamp) {
-        this.sID = nID;
+    public Notification(int nID, String sName, String sTimeStamp) {
+        this.nID = nID;
         this.sContent = sName;
         this.sTimeStamp = sTimeStamp;
     }
 
-    public String getsID() {
-        return sID;
+    public int getnID() {
+        return nID;
     }
 
-    public void setsID(String sID) {
-        this.sID = sID;
+    public void setnID(int nID) {
+        this.nID = nID;
     }
 
     public String getsContent() {

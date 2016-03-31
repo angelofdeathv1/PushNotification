@@ -15,6 +15,7 @@ import android.widget.ListView;
 
 import com.foxconnbc.pushnotification.R;
 import com.foxconnbc.pushnotification.controller.NotificationsAdapter;
+import com.foxconnbc.pushnotification.controller.NotificationsHelper;
 import com.foxconnbc.pushnotification.model.Notification;
 import com.foxconnbc.pushnotification.utils.DBUtils;
 import com.onesignal.OneSignal;
@@ -26,7 +27,7 @@ import java.util.ArrayList;
 public class DataListingActivity extends AppCompatActivity {
     ListView lstView = null;
     NotificationsAdapter adapter = null;
-    DBUtils oDBUtils;
+    NotificationsHelper oHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,11 +51,14 @@ public class DataListingActivity extends AppCompatActivity {
                 new HttpPostTask(DataListingActivity.this).execute();
             }
         });
-        oDBUtils = new DBUtils(this);
+
         lstView = (ListView) findViewById(R.id.lstList);
         adapter = new NotificationsAdapter(this);
 
         lstView.setAdapter(adapter);
+
+        oHelper = new NotificationsHelper(this);
+
 
         new HttpPostTask(DataListingActivity.this).execute();
 
@@ -82,9 +86,21 @@ public class DataListingActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void llenarDatos(ArrayList<Notification> coachesList) {
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        oHelper.close();
+        super.onPause();
+    }
+
+    public void llenarDatos(ArrayList<Notification> arrLNotifications) {
         adapter.clear();
-        for (Notification notification : coachesList) {
+        for (Notification notification : arrLNotifications) {
             adapter.add(notification);
         }
         adapter.notifyDataSetChanged();
@@ -101,7 +117,8 @@ public class DataListingActivity extends AppCompatActivity {
 
                     Log.d("OneSignalExample", "Full additionalData:\n" + additionalData.toString());
 
-                    oDBUtils.insertNotification(additionalData.getString("ID"), message, additionalData.getString("TimeStamp"));
+                    oHelper.insertNotification(message, additionalData.getString("TimeStamp"));
+                    llenarDatos(oHelper.getAllNotifications());
                 }
 
             } catch (Throwable t) {
@@ -113,7 +130,7 @@ public class DataListingActivity extends AppCompatActivity {
     private class HttpPostTask extends AsyncTask<Void, Integer, ArrayList<Notification>> {
         ProgressDialog pd;
 
-        public HttpPostTask(Activity myActivity){
+        public HttpPostTask(Activity myActivity) {
             pd = new ProgressDialog(myActivity);
         }
 
@@ -127,7 +144,7 @@ public class DataListingActivity extends AppCompatActivity {
 
         @Override
         protected ArrayList<Notification> doInBackground(Void... params) {
-            return oDBUtils.getAllNotifications();
+            return oHelper.getAllNotifications();
         }
 
         @Override
