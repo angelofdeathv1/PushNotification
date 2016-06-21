@@ -7,7 +7,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Message:"
-        android:textSize="@dimen/txtTitleSize" />
+        android:textSize="@dimen/txtTitleSize"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/txtRowMessage"
@@ -19,5 +20,8 @@
         android:id="@+id/txtRowDate"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/txtNormalSize" />
+        android:gravity="right"
+        android:textAlignment="gravity"
+        android:textSize="@dimen/txtNormalSize"
+        android:textStyle="bold" />
 </LinearLayout>

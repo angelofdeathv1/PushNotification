@@ -2,15 +2,19 @@ package com.foxconnbc.pushnotification.view;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.foxconnbc.pushnotification.R;
 import com.foxconnbc.pushnotification.controller.NotificationsAdapter;
@@ -23,6 +27,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class DataListingActivity extends AppCompatActivity {
+    private static Context oContext;
     ListView lstView = null;
     NotificationsAdapter adapter = null;
     NotificationsHelper oHelper;
@@ -30,7 +35,7 @@ public class DataListingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        this.oContext = this;
         OneSignal.setLogLevel(OneSignal.LOG_LEVEL.DEBUG, OneSignal.LOG_LEVEL.WARN);
 
         OneSignal.startInit(this)
@@ -39,7 +44,6 @@ public class DataListingActivity extends AppCompatActivity {
                 .init();
 
         setContentView(R.layout.activity_data_listing);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -47,17 +51,16 @@ public class DataListingActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Toast.makeText(getContext(),"Loading..",Toast.LENGTH_SHORT);
                 new HttpPostTask(DataListingActivity.this).execute();
             }
         });
 
         lstView = (ListView) findViewById(R.id.lstList);
+        oHelper = new NotificationsHelper(this);
         adapter = new NotificationsAdapter(this);
 
         lstView.setAdapter(adapter);
-
-        oHelper = new NotificationsHelper(this);
-
         lstView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
             @Override
@@ -69,12 +72,30 @@ public class DataListingActivity extends AppCompatActivity {
         });
 
         new HttpPostTask(DataListingActivity.this).execute();
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings_delete) {
+            if (adapter.getCount() > 0) {
+                oHelper.deleteAllNotifications();
+                new HttpPostTask(DataListingActivity.this).execute();
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onResume() {
-
+        new HttpPostTask(DataListingActivity.this).execute();
         super.onResume();
     }
 
@@ -84,7 +105,7 @@ public class DataListingActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    public void llenarDatos(ArrayList<Notification> arrLNotifications) {
+    public void populateNotifications(ArrayList<Notification> arrLNotifications) {
         adapter.clear();
         for (Notification notification : arrLNotifications) {
             adapter.add(notification);
@@ -93,7 +114,6 @@ public class DataListingActivity extends AppCompatActivity {
     }
 
     public void deleteNotification(int position) {
-
         if (adapter.getCount() > 0) {
             Notification oNotification = adapter.getItem(position);
             oHelper.deleteNotification(oNotification);
@@ -111,9 +131,6 @@ public class DataListingActivity extends AppCompatActivity {
                     }
 
                     Log.d("OneSignalExample", "Full additionalData:\n" + additionalData.toString());
-
-                    oHelper.insertNotification(message, additionalData.getString("TimeStamp"));
-                    //llenarDatos(oHelper.getAllNotifications());
                     new HttpPostTask(DataListingActivity.this).execute();
                 }
 
@@ -121,6 +138,10 @@ public class DataListingActivity extends AppCompatActivity {
                 t.printStackTrace();
             }
         }
+    }
+
+    public static Context getContext() {
+        return oContext;
     }
 
     private class HttpPostTask extends AsyncTask<Void, Integer, ArrayList<Notification>> {
@@ -133,7 +154,6 @@ public class DataListingActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
             pd.setMessage("loading");
             pd.show();
         }
@@ -145,7 +165,7 @@ public class DataListingActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(ArrayList<Notification> response) {
-            llenarDatos(response);
+            populateNotifications(response);
             if (pd.isShowing()) {
                 pd.dismiss();
             }

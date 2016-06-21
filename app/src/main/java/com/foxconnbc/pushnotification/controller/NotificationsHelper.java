@@ -16,15 +16,15 @@ import java.util.ArrayList;
  */
 public class NotificationsHelper {
     private DBUtils dbHelper;
-    private String[] USUARIOS_TABLE_COLUMNS = {DBUtils.C_NOTIFICATION_ID, DBUtils.C_NOTIFICATION_CONTENT,DBUtils.C_NOTIFICATION_TIMESTAMP};
+    private String[] USUARIOS_TABLE_COLUMNS = {DBUtils.C_NOTIFICATION_ID, DBUtils.C_NOTIFICATION_CONTENT, DBUtils.C_NOTIFICATION_TIMESTAMP};
     private SQLiteDatabase database;
 
     public NotificationsHelper(Context context) {
         dbHelper = new DBUtils(context);
     }
 
-    public SQLiteDatabase getNotificationCon(){
-        if (database==null || !database.isOpen()){
+    public SQLiteDatabase getNotificationCon() {
+        if (database == null || !database.isOpen()) {
             open();
         }
         return database;
@@ -38,13 +38,12 @@ public class NotificationsHelper {
         dbHelper.close();
     }
 
-    public Notification insertNotification  (String content, String timestamp)
-    {
+    public Notification insertNotification(String content, String timestamp) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBUtils.C_NOTIFICATION_CONTENT, content);
         contentValues.put(DBUtils.C_NOTIFICATION_TIMESTAMP, timestamp);
 
-        database=getNotificationCon();
+        database = getNotificationCon();
 
         long studId = database.insert(DBUtils.C_NOTIFICATIONS, null, contentValues);
 
@@ -63,18 +62,31 @@ public class NotificationsHelper {
 
     public void deleteNotification(Notification oNotification) {
         long id = oNotification.getnID();
-        database=getNotificationCon();
+        database = getNotificationCon();
         database.delete(DBUtils.C_NOTIFICATIONS, DBUtils.C_NOTIFICATION_ID
                 + " = " + id, null);
     }
 
+    public void deleteAllNotifications() {
+        database = getNotificationCon();
 
+        Cursor cursor = database.query(DBUtils.C_NOTIFICATIONS,
+                USUARIOS_TABLE_COLUMNS, null, null, null, null, DBUtils.C_NOTIFICATION_ID + " DESC");
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            database.delete(DBUtils.C_NOTIFICATIONS, DBUtils.C_NOTIFICATION_ID
+                    + " = " + cursor.getInt(0), null);
+            cursor.moveToNext();
+        }
+        cursor.close();
+    }
 
     public ArrayList<Notification> getAllNotifications() {
-        ArrayList<Notification> arrLNotifications=new ArrayList<Notification>();
-        database=getNotificationCon();
+        ArrayList<Notification> arrLNotifications = new ArrayList<Notification>();
+        database = getNotificationCon();
         Cursor cursor = database.query(DBUtils.C_NOTIFICATIONS,
-                USUARIOS_TABLE_COLUMNS, null, null, null, null, DBUtils.C_NOTIFICATION_ID+ " DESC");
+                USUARIOS_TABLE_COLUMNS, null, null, null, null, DBUtils.C_NOTIFICATION_ID + " DESC");
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -94,5 +106,4 @@ public class NotificationsHelper {
         oNotification.setsTimeStamp(cursor.getString(2));
         return oNotification;
     }
-
 }
