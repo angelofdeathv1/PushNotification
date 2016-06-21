@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -26,17 +27,19 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class DataListingActivity extends AppCompatActivity {
+public class DataListingActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
     private static Context oContext;
     ListView lstView = null;
     NotificationsAdapter adapter = null;
-    NotificationsHelper oHelper;
+    NotificationsHelper oHelper = null;
+    SwipeRefreshLayout swipeRefreshLayout = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.oContext = this;
         OneSignal.setLogLevel(OneSignal.LOG_LEVEL.DEBUG, OneSignal.LOG_LEVEL.WARN);
+        OneSignal.enableNotificationsWhenActive(false);
 
         OneSignal.startInit(this)
                 .setAutoPromptLocation(true)
@@ -51,18 +54,20 @@ public class DataListingActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(),"Loading..",Toast.LENGTH_SHORT);
+                Toast.makeText(getContext(), "Loading..", Toast.LENGTH_SHORT);
                 new HttpPostTask(DataListingActivity.this).execute();
             }
         });
 
         lstView = (ListView) findViewById(R.id.lstList);
+
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+
         oHelper = new NotificationsHelper(this);
         adapter = new NotificationsAdapter(this);
 
         lstView.setAdapter(adapter);
         lstView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view,
                                            int position, long id) {
@@ -71,8 +76,18 @@ public class DataListingActivity extends AppCompatActivity {
             }
         });
 
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        swipeRefreshLayout.setRefreshing(true);
+                                        new HttpPostTask(DataListingActivity.this).execute();
+                                    }
+                                }
+        );
         new HttpPostTask(DataListingActivity.this).execute();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -84,13 +99,18 @@ public class DataListingActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings_delete) {
-            if (adapter.getCount() > 0) {
+
                 oHelper.deleteAllNotifications();
                 new HttpPostTask(DataListingActivity.this).execute();
-            }
+
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRefresh() {
+        new HttpPostTask(DataListingActivity.this).execute();
     }
 
     @Override
@@ -154,6 +174,7 @@ public class DataListingActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            swipeRefreshLayout.setRefreshing(true);
             pd.setMessage("loading");
             pd.show();
         }
@@ -169,6 +190,7 @@ public class DataListingActivity extends AppCompatActivity {
             if (pd.isShowing()) {
                 pd.dismiss();
             }
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 }
