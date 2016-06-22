@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -49,6 +50,7 @@ public class DataListingActivity extends AppCompatActivity implements SwipeRefre
                 .setNotificationOpenedHandler(new ExampleNotificationOpenedHandler())
                 .init();
 
+        requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_data_listing);
 
         oHelper = new NotificationsHelper(this);
@@ -93,7 +95,6 @@ public class DataListingActivity extends AppCompatActivity implements SwipeRefre
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -128,8 +129,8 @@ public class DataListingActivity extends AppCompatActivity implements SwipeRefre
 
     protected void deleteNotifications(){
         AlertDialog alertDialog = new AlertDialog.Builder(DataListingActivity.this).create();
-        alertDialog.setTitle("Delete");
-        alertDialog.setMessage("Delete all messages?");
+        alertDialog.setTitle("Warning");
+        alertDialog.setMessage("Delete all local messages?");
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "NO",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
