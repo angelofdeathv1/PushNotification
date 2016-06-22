@@ -50,7 +50,7 @@ public class HttpRequest {
         this.url = new URL(url);
     }
 
-    //used by all sending methods: send(), sendAndReadString(), sendAndReadJson() - to close open resources
+    //used by all sending methods: send(), sendAndReadString(), sendAndReadJson() - to closeDatabase openDatabase resources
     private void done() throws IOException {
         con.disconnect();
         os.close();
@@ -90,9 +90,9 @@ public class HttpRequest {
     }
 
     /**
-     * Writes query to open stream to server
+     * Writes query to openDatabase stream to server
      *
-     * @param query String params in format of key1=v1&key2=v2 to open stream to server
+     * @param query String params in format of key1=v1&key2=v2 to openDatabase stream to server
      * @return HttpRequest this instance -> for chaining method @see line 22
      * @throws IOException - should be checked by caller
      */

@@ -25,16 +25,16 @@ public class NotificationsHelper {
 
     public SQLiteDatabase getNotificationCon() {
         if (database == null || !database.isOpen()) {
-            open();
+            openDatabase();
         }
         return database;
     }
 
-    public void open() throws SQLException {
+    public void openDatabase() throws SQLException {
         database = dbHelper.getWritableDatabase();
     }
 
-    public void close() {
+    public void closeDatabase() {
         dbHelper.close();
     }
 
@@ -56,7 +56,7 @@ public class NotificationsHelper {
         Notification oNotification = parseNotification(cursor);
 
         cursor.close();
-
+        closeDatabase();
         return oNotification;
     }
 
@@ -65,6 +65,7 @@ public class NotificationsHelper {
         database = getNotificationCon();
         database.delete(DBUtils.C_NOTIFICATIONS, DBUtils.C_NOTIFICATION_ID
                 + " = " + id, null);
+        closeDatabase();
     }
 
     public void deleteAllNotifications() {
@@ -80,6 +81,7 @@ public class NotificationsHelper {
             cursor.moveToNext();
         }
         cursor.close();
+        closeDatabase();
     }
 
     public ArrayList<Notification> getAllNotifications() {
@@ -96,6 +98,7 @@ public class NotificationsHelper {
         }
 
         cursor.close();
+        closeDatabase();
         return arrLNotifications;
     }
 

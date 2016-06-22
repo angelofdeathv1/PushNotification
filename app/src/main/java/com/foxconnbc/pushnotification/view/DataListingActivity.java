@@ -3,10 +3,12 @@ package com.foxconnbc.pushnotification.view;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -15,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.foxconnbc.pushnotification.R;
 import com.foxconnbc.pushnotification.controller.NotificationsAdapter;
@@ -29,7 +30,9 @@ import java.util.ArrayList;
 
 public class DataListingActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
     private static Context oContext;
+    Toolbar toolbar = null;
     ListView lstView = null;
+    FloatingActionButton fab = null;
     NotificationsAdapter adapter = null;
     NotificationsHelper oHelper = null;
     SwipeRefreshLayout swipeRefreshLayout = null;
@@ -47,26 +50,25 @@ public class DataListingActivity extends AppCompatActivity implements SwipeRefre
                 .init();
 
         setContentView(R.layout.activity_data_listing);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getContext(), "Loading..", Toast.LENGTH_SHORT);
-                new HttpPostTask(DataListingActivity.this).execute();
-            }
-        });
-
-        lstView = (ListView) findViewById(R.id.lstList);
-
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
         oHelper = new NotificationsHelper(this);
         adapter = new NotificationsAdapter(this);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        lstView = (ListView) findViewById(R.id.lstList);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
+        setSupportActionBar(toolbar);
         lstView.setAdapter(adapter);
+        swipeRefreshLayout.setOnRefreshListener(this);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteNotifications();
+            }
+        });
+
         lstView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view,
@@ -76,7 +78,6 @@ public class DataListingActivity extends AppCompatActivity implements SwipeRefre
             }
         });
 
-        swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -85,6 +86,8 @@ public class DataListingActivity extends AppCompatActivity implements SwipeRefre
                                     }
                                 }
         );
+
+
         new HttpPostTask(DataListingActivity.this).execute();
     }
 
@@ -97,15 +100,13 @@ public class DataListingActivity extends AppCompatActivity implements SwipeRefre
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings_delete) {
-
-                oHelper.deleteAllNotifications();
-                new HttpPostTask(DataListingActivity.this).execute();
-
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_settings_delete:
+                deleteNotifications();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -121,11 +122,30 @@ public class DataListingActivity extends AppCompatActivity implements SwipeRefre
 
     @Override
     protected void onPause() {
-        oHelper.close();
+        oHelper.closeDatabase();
         super.onPause();
     }
 
-    public void populateNotifications(ArrayList<Notification> arrLNotifications) {
+    protected void deleteNotifications(){
+        AlertDialog alertDialog = new AlertDialog.Builder(DataListingActivity.this).create();
+        alertDialog.setTitle("Delete");
+        alertDialog.setMessage("Delete all messages?");
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "NO",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "YES",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        oHelper.deleteAllNotifications();
+                        new HttpPostTask(DataListingActivity.this).execute();
+                    }
+                });
+        alertDialog.show();
+    }
+    protected void populateNotifications(ArrayList<Notification> arrLNotifications) {
         adapter.clear();
         for (Notification notification : arrLNotifications) {
             adapter.add(notification);
@@ -133,7 +153,7 @@ public class DataListingActivity extends AppCompatActivity implements SwipeRefre
         adapter.notifyDataSetChanged();
     }
 
-    public void deleteNotification(int position) {
+    protected void deleteNotification(int position) {
         if (adapter.getCount() > 0) {
             Notification oNotification = adapter.getItem(position);
             oHelper.deleteNotification(oNotification);
