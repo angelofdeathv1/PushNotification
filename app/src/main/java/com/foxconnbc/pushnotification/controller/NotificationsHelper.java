@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.foxconnbc.pushnotification.model.Notification;
 import com.foxconnbc.pushnotification.utils.DBUtils;
@@ -46,7 +47,7 @@ public class NotificationsHelper {
         database = getNotificationCon();
 
         long studId = database.insert(DBUtils.C_NOTIFICATIONS, null, contentValues);
-
+        Log.d("OneSignalPush", studId + " - " + content + " - " + timestamp);
         Cursor cursor = database.query(DBUtils.C_NOTIFICATIONS,
                 USUARIOS_TABLE_COLUMNS, DBUtils.C_NOTIFICATION_ID + " = "
                         + studId, null, null, null, null);

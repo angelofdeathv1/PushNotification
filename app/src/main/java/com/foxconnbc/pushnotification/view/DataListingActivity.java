@@ -1,8 +1,8 @@
 package com.foxconnbc.pushnotification.view;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,7 +30,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class DataListingActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
-    private static Context oContext;
+    private static Application oApplication;
     Toolbar toolbar = null;
     ListView lstView = null;
     FloatingActionButton fab = null;
@@ -41,13 +41,13 @@ public class DataListingActivity extends AppCompatActivity implements SwipeRefre
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.oContext = this;
-        OneSignal.setLogLevel(OneSignal.LOG_LEVEL.DEBUG, OneSignal.LOG_LEVEL.WARN);
+        this.oApplication = getApplication();
+        OneSignal.setLogLevel(OneSignal.LOG_LEVEL.DEBUG, OneSignal.LOG_LEVEL.ERROR);
         OneSignal.enableNotificationsWhenActive(false);
 
         OneSignal.startInit(this)
                 .setAutoPromptLocation(true)
-                .setNotificationOpenedHandler(new ExampleNotificationOpenedHandler())
+                .setNotificationOpenedHandler(new NotificationOpenedHandler())
                 .init();
 
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
@@ -123,11 +123,10 @@ public class DataListingActivity extends AppCompatActivity implements SwipeRefre
 
     @Override
     protected void onPause() {
-        oHelper.closeDatabase();
         super.onPause();
     }
 
-    protected void deleteNotifications(){
+    protected void deleteNotifications() {
         AlertDialog alertDialog = new AlertDialog.Builder(DataListingActivity.this).create();
         alertDialog.setTitle("Warning");
         alertDialog.setMessage("Delete all local messages?");
@@ -146,6 +145,7 @@ public class DataListingActivity extends AppCompatActivity implements SwipeRefre
                 });
         alertDialog.show();
     }
+
     protected void populateNotifications(ArrayList<Notification> arrLNotifications) {
         adapter.clear();
         for (Notification notification : arrLNotifications) {
@@ -162,27 +162,25 @@ public class DataListingActivity extends AppCompatActivity implements SwipeRefre
         }
     }
 
-    private class ExampleNotificationOpenedHandler implements OneSignal.NotificationOpenedHandler {
+    private class NotificationOpenedHandler implements OneSignal.NotificationOpenedHandler {
         @Override
         public void notificationOpened(String message, JSONObject additionalData, boolean isActive) {
             try {
                 if (additionalData != null) {
-                    if (additionalData.has("actionSelected")) {
-                        Log.d("OneSignalExample", "OneSignal notification button with id " + additionalData.getString("actionSelected") + " pressed");
+                    if (isActive) {
+                        new HttpPostTask(DataListingActivity.this).execute();
                     }
-
-                    Log.d("OneSignalExample", "Full additionalData:\n" + additionalData.toString());
+                    Log.d("OneSignalPush", "Full additionalData:\n" + additionalData.toString());
                     new HttpPostTask(DataListingActivity.this).execute();
                 }
-
             } catch (Throwable t) {
                 t.printStackTrace();
             }
         }
     }
 
-    public static Context getContext() {
-        return oContext;
+    public static Application getMyApplication() {
+        return oApplication;
     }
 
     private class HttpPostTask extends AsyncTask<Void, Integer, ArrayList<Notification>> {

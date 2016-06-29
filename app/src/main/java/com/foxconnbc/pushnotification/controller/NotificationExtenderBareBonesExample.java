@@ -8,7 +8,7 @@ import com.onesignal.OSNotificationPayload;
  * Created by te-arambulaa on 6/21/2016.
  */
 public class NotificationExtenderBareBonesExample extends NotificationExtenderService {
-    NotificationsHelper oHelper = new NotificationsHelper(DataListingActivity.getContext());
+    NotificationsHelper oHelper = new NotificationsHelper(DataListingActivity.getMyApplication().getApplicationContext());
 
     @Override
     protected boolean onNotificationProcessing(OSNotificationPayload notification) {
@@ -22,6 +22,7 @@ public class NotificationExtenderBareBonesExample extends NotificationExtenderSe
         };*/
         try {
             if (notification.additionalData != null) {
+                //Log.d("OneSignalPush", "Notification Extender Full additionalData:\n" + notification.additionalData.toString());
                 oHelper.insertNotification(notification.message, notification.additionalData.getString("TimeStamp"));
             }
         } catch (Throwable t) {
